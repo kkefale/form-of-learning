@@ -1,0 +1,5 @@
+# .dev.vars.example
+# Copy to .dev.vars for local development.
+# .dev.vars is gitignored — never commit real credentials.
+
+CORS_ORIGIN=http://localhost:3000

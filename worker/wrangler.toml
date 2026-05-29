@@ -1,0 +1,35 @@
+name = "form-of-learning"
+main = "src/index.ts"
+compatibility_date = "2025-01-15"
+compatibility_flags = ["nodejs_compat"]
+
+# ── Durable Objects ─────────────────────────────────────────────────
+[[durable_objects.bindings]]
+name = "SESSION_DO"
+class_name = "SessionDO"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["SessionDO"]
+
+# ── D1 Database ─────────────────────────────────────────────────────
+[[d1_databases]]
+binding = "DB"
+database_name = "form-of-learning"
+# Replace with your actual database_id from: wrangler d1 create form-of-learning
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+# Migrations directory
+migrations_dir = "../migrations"
+
+# ── Workers AI ──────────────────────────────────────────────────────
+[ai]
+binding = "AI"
+
+# ── Environment Variables ───────────────────────────────────────────
+[vars]
+CORS_ORIGIN = "https://form-of-learning.pages.dev"
+
+# ── Local dev overrides ─────────────────────────────────────────────
+[env.dev.vars]
+CORS_ORIGIN = "http://localhost:3000"
