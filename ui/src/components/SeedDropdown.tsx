@@ -93,7 +93,9 @@ export default function SeedDropdown() {
               padding: '20px 16px', textAlign: 'center',
               color: 'var(--text-dim)', fontSize: 12,
             }}>
-              No seeds available. Check your connection.
+              No seeds available.
+              <br/><br/>
+              API URL: {import.meta.env.VITE_API_URL || 'Not Set'}
             </div>
           ) : (
             seeds.map(seed => (

@@ -2,7 +2,8 @@
 // All fetch() calls to the Worker API live here.
 // BASE URL is driven by an env var — no hardcoded localhost.
 
-const BASE = import.meta.env.VITE_API_URL ?? '';
+const rawBase = import.meta.env.VITE_API_URL ?? '';
+const BASE = rawBase.endsWith('/') ? rawBase.slice(0, -1) : rawBase;
 // Empty string = same origin (uses Vite proxy in dev, Pages URL in prod)
 
 export type LlmProvider   = 'workersai' | 'gemini';
