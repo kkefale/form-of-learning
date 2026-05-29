@@ -195,6 +195,60 @@ export async function initDefaultSeeds(): Promise<void> {
   await fetch(`${BASE}/seeds/init`, { method: 'POST' });
 }
 
+export async function saveSeed(
+  name:        string,
+  description: string,
+  nodes:       unknown[],
+  edges:       unknown[],
+): Promise<void> {
+  const r = await fetch(`${BASE}/seeds`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ name, description, nodes, edges }),
+  });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+export interface ExtractEvent {
+  type:    'info' | 'node' | 'edge' | 'done' | 'error';
+  message?: string;
+  data?:   Record<string, unknown>;
+  stats?:  { nodes: number; edges: number };
+}
+
+export async function* extractSeed(
+  text:      string,
+  provider?: string,
+  model?:    string,
+  apiKey?:   string,
+): AsyncGenerator<ExtractEvent> {
+  const r = await fetch(`${BASE}/admin/extract`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ text, provider, model, apiKey }),
+  });
+
+  if (!r.ok || !r.body) throw new Error(`Extract error: ${r.status}`);
+
+  const reader  = r.body.getReader();
+  const decoder = new TextDecoder();
+  let   buffer  = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const parts = buffer.split('\n\n');
+    buffer = parts.pop() ?? '';
+    for (const part of parts) {
+      const line = part.trim();
+      if (!line.startsWith('data: ')) continue;
+      try { yield JSON.parse(line.slice(6)) as ExtractEvent; }
+      catch { /* skip malformed */ }
+    }
+  }
+}
+
 // ── Models ───────────────────────────────────────────────────────────────────
 
 export async function listModels(provider: LlmProvider): Promise<ModelOption[]> {

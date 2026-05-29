@@ -317,10 +317,7 @@ export default function TheRiver() {
           </div>
         ) : (
           <>
-            {messages.filter(m => !(m.role === 'user' && m.content === (
-              // Filter out the optimistic user message if we have a streaming response
-              streamingText ? messages[messages.length - 1]?.content : ''
-            ))).map((msg, i) => (
+            {messages.map((msg, i) => (
               <MessageBubble
                 key={i}
                 role={msg.role}

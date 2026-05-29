@@ -2,7 +2,7 @@
 // Knowledge graph visualisation — force-directed node network.
 // Nodes coloured by epistemic state. Built on React Flow (@xyflow/react).
 
-import { useMemo } from 'react';
+import { useEffect } from 'react';
 import {
   ReactFlow,
   Background,
@@ -110,29 +110,18 @@ function buildEdges(
 export default function TheConstellation() {
   const { graph, zpd } = useSession(useShallow(s => ({ graph: s.graph, zpd: s.zpd })));
 
-  const initialNodes = useMemo(() => {
-    if (!graph) return [];
-    return layoutNodes(graph.concepts, zpd);
-  }, [graph, zpd]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
-  const initialEdges = useMemo(() => {
-    if (!graph) return [];
-    return buildEdges(graph.edges);
-  }, [graph]);
+  useEffect(() => {
+    if (!graph) return;
+    setNodes(layoutNodes(graph.concepts, zpd));
+  }, [graph, zpd, setNodes]);
 
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
-
-  // Update when graph changes
-  const derivedNodes = useMemo(() => {
-    if (!graph) return nodes;
-    return layoutNodes(graph.concepts, zpd);
-  }, [graph, zpd]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const derivedEdges = useMemo(() => {
-    if (!graph) return edges;
-    return buildEdges(graph.edges);
-  }, [graph]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!graph) return;
+    setEdges(buildEdges(graph.edges));
+  }, [graph, setEdges]);
 
   const { stats } = graph ?? { stats: null };
 
@@ -182,8 +171,8 @@ export default function TheConstellation() {
           </div>
         ) : (
           <ReactFlow
-            nodes={derivedNodes}
-            edges={derivedEdges}
+            nodes={nodes}
+            edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             nodeTypes={nodeTypes}

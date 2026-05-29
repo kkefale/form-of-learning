@@ -56,7 +56,7 @@ export class SessionDO {
 
     if (method === 'POST'   && url.pathname === '/turn')         return this.handleTurn(request, false);
     if (method === 'POST'   && url.pathname === '/turn/stream')  return this.handleTurn(request, true);
-    if (method === 'GET'    && url.pathname === '/graph')        return this.handleGraph();
+    if (method === 'GET'    && url.pathname === '/graph')        return this.handleGraph(url);
     if (method === 'GET'    && url.pathname === '/messages')     return this.handleMessages();
     if (method === 'DELETE' && url.pathname === '/session')      return this.handleSessionReset();
     if (method === 'POST'   && url.pathname === '/reset')        return this.handleFullReset();
@@ -189,9 +189,9 @@ export class SessionDO {
 
   // ── GET /graph ──────────────────────────────────────────────────────────────
 
-  private async handleGraph(): Promise<Response> {
-    const s     = this.session;
-    const uid   = s?.userId ?? 'anonymous';
+  private async handleGraph(url: URL): Promise<Response> {
+    // Prefer the user_id query param (always present); fall back to loaded session
+    const uid   = url.searchParams.get('user_id') ?? this.session?.userId ?? 'anonymous';
     const graph = new GraphClient(this.env.DB, uid);
 
     const [concepts, edges, zpd, stats] = await Promise.all([

@@ -6,6 +6,7 @@ import TheRiver         from './components/TheRiver';
 import TheConstellation from './components/TheConstellation';
 import TheFog           from './components/TheFog';
 import LlmPanel         from './components/LlmPanel';
+import AdminPanel       from './components/AdminPanel';
 import SeedDropdown     from './components/SeedDropdown';
 import { useSession }   from './lib/store';
 import { useShallow }   from 'zustand/react/shallow';
@@ -13,12 +14,13 @@ import { useShallow }   from 'zustand/react/shallow';
 // ── Top bar ───────────────────────────────────────────────────────────────────
 
 interface TopBarProps {
-  onFogOpen:  () => void;
-  onLlmOpen:  () => void;
-  onClear:    () => void;
+  onFogOpen:   () => void;
+  onLlmOpen:   () => void;
+  onAdminOpen: () => void;
+  onClear:     () => void;
 }
 
-function TopBar({ onFogOpen, onLlmOpen, onClear }: TopBarProps) {
+function TopBar({ onFogOpen, onLlmOpen, onAdminOpen, onClear }: TopBarProps) {
   const { llm, turnCount, userId, complexityMode } = useSession(useShallow(s => ({
     llm:           s.llm,
     turnCount:     s.turnCount,
@@ -92,6 +94,11 @@ function TopBar({ onFogOpen, onLlmOpen, onClear }: TopBarProps) {
           {llm.provider === 'gemini' ? '✦ gemini' : '⚡ workers ai'}
         </span>
 
+        {/* Admin / Seed Builder button */}
+        <button id="admin-btn" style={btnStyle()} onClick={onAdminOpen}>
+          ⬡ seeds
+        </button>
+
         {/* TheFog button */}
         <button id="fog-btn" style={btnStyle()} onClick={onFogOpen}>
           ≡ fog
@@ -129,8 +136,9 @@ function TopBar({ onFogOpen, onLlmOpen, onClear }: TopBarProps) {
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [fogOpen, setFogOpen]   = useState(false);
-  const [llmOpen, setLlmOpen]   = useState(false);
+  const [fogOpen,   setFogOpen]   = useState(false);
+  const [llmOpen,   setLlmOpen]   = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
   const { loadMessages, refreshGraph } = useSession(useShallow(s => ({
     loadMessages:  s.loadMessages,
     refreshGraph:  s.refreshGraph,
@@ -158,6 +166,7 @@ export default function App() {
       <TopBar
         onFogOpen={() => setFogOpen(true)}
         onLlmOpen={() => setLlmOpen(true)}
+        onAdminOpen={() => setAdminOpen(true)}
         onClear={handleClear}
       />
 
@@ -173,8 +182,9 @@ export default function App() {
       </div>
 
       {/* Overlays */}
-      <TheFog isOpen={fogOpen} onClose={() => setFogOpen(false)} />
-      <LlmPanel isOpen={llmOpen} onClose={() => setLlmOpen(false)} />
+      <TheFog   isOpen={fogOpen}   onClose={() => setFogOpen(false)} />
+      <LlmPanel isOpen={llmOpen}   onClose={() => setLlmOpen(false)} />
+      <AdminPanel isOpen={adminOpen} onClose={() => setAdminOpen(false)} />
     </div>
   );
 }
