@@ -28,7 +28,7 @@ binding = "AI"
 
 # ── Environment Variables ───────────────────────────────────────────
 [vars]
-CORS_ORIGIN = "https://form-of-learning.pages.dev"
+CORS_ORIGIN = "*"
 
 # ── Local dev overrides ─────────────────────────────────────────────
 [env.dev.vars]
