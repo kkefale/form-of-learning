@@ -1,5 +1,9 @@
 {
   "name": "form-of-learning",
   "private": true,
-  "packageManager": "pnpm@9.15.4"
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "deploy": "pnpm --filter form-of-learning-worker run deploy",
+    "build": "pnpm --filter form-of-learning-ui run build"
+  }
 }
