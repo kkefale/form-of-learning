@@ -2,16 +2,19 @@
 // Knowledge graph visualisation — force-directed node network.
 // Nodes coloured by epistemic state. Built on React Flow (@xyflow/react).
 
-import { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   ReactFlow,
   Background,
   BackgroundVariant,
   Controls,
   MiniMap,
+  Handle,
+  Position,
   type Node,
   type Edge,
   type NodeTypes,
+  type ReactFlowInstance,
   useNodesState,
   useEdgesState,
 } from '@xyflow/react';
@@ -37,6 +40,10 @@ function ConceptNode({ data }: { data?: { label: string; state: string; isZpd: b
   const label = data?.label ?? '';
   const isZpd = data?.isZpd ?? false;
   const colors = STATE_COLORS[state] ?? STATE_COLORS.UNKNOWN;
+
+  const handleStyle: React.CSSProperties = {
+    width: 6, height: 6, opacity: 0, border: 'none', background: 'transparent',
+  };
   
   return (
     <div style={{
@@ -55,7 +62,11 @@ function ConceptNode({ data }: { data?: { label: string; state: string; isZpd: b
       outline:    isZpd ? `2px solid ${colors.border}60` : 'none',
       outlineOffset: 2,
     }}>
+      <Handle type="target" position={Position.Top}    style={handleStyle} />
+      <Handle type="target" position={Position.Left}   style={handleStyle} />
       {label}
+      <Handle type="source" position={Position.Bottom} style={handleStyle} />
+      <Handle type="source" position={Position.Right}  style={handleStyle} />
     </div>
   );
 }
@@ -110,24 +121,27 @@ function buildEdges(
 export default function TheConstellation() {
   const { graph, zpd } = useSession(useShallow(s => ({ graph: s.graph, zpd: s.zpd })));
 
+  const rfRef = useRef<ReactFlowInstance | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
   useEffect(() => {
     if (!graph) return;
     setNodes(layoutNodes(graph.concepts, zpd));
-  }, [graph, zpd, setNodes]);
-
-  useEffect(() => {
-    if (!graph) return;
     setEdges(buildEdges(graph.edges));
-  }, [graph, setEdges]);
+  }, [graph, zpd, setNodes, setEdges]);
+
+  // Fit view after nodes are actually rendered
+  useEffect(() => {
+    if (nodes.length === 0) return;
+    rfRef.current?.fitView({ padding: 0.3, duration: 400 });
+  }, [nodes]);
 
   const { stats } = graph ?? { stats: null };
 
   return (
     <div style={{
-      flex: 1, display: 'flex', flexDirection: 'column',
+      flex: 1, height: '100%', display: 'flex', flexDirection: 'column',
       overflow: 'hidden', position: 'relative',
     }}>
       {/* Header */}
@@ -176,6 +190,7 @@ export default function TheConstellation() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             nodeTypes={nodeTypes}
+            onInit={instance => { rfRef.current = instance; }}
             fitView
             fitViewOptions={{ padding: 0.3 }}
             minZoom={0.2}
