@@ -17,7 +17,7 @@ new_classes = ["SessionDO"]
 binding = "DB"
 database_name = "form-of-learning"
 # Replace with your actual database_id from: wrangler d1 create form-of-learning
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "59444450-0f45-48de-a3f4-e6f4d8097bc9"
 
 # Migrations directory
 migrations_dir = "../migrations"
