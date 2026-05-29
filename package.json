@@ -3,7 +3,9 @@
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "deploy": "pnpm --filter form-of-learning-worker run deploy",
-    "build": "pnpm --filter form-of-learning-ui run build"
+    "dev:ui":     "pnpm --filter form-of-learning-ui run dev",
+    "dev:worker": "pnpm --filter form-of-learning-worker run dev",
+    "build":      "pnpm --filter form-of-learning-ui run build",
+    "deploy":     "pnpm run build && pnpm --filter form-of-learning-worker run deploy"
   }
 }

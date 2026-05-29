@@ -21,28 +21,38 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders(env) });
     }
 
-    let response: Response;
-
-    try {
-      response = await route(request, url, method, env);
-    } catch (err) {
-      response = new Response(
-        JSON.stringify({ error: String(err) }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } },
-      );
+    // ── API routes — add CORS and handle inline ─────────────────────────────
+    if (isApiPath(url.pathname)) {
+      let response: Response;
+      try {
+        response = await route(request, url, method, env);
+      } catch (err) {
+        response = new Response(
+          JSON.stringify({ error: String(err) }),
+          { status: 500, headers: { 'Content-Type': 'application/json' } },
+        );
+      }
+      const headers = new Headers(response.headers);
+      for (const [k, v] of Object.entries(corsHeaders(env))) {
+        headers.set(k, v);
+      }
+      return new Response(response.body, { status: response.status, headers });
     }
 
-    // Attach CORS headers to every response
-    const headers = new Headers(response.headers);
-    for (const [k, v] of Object.entries(corsHeaders(env))) {
-      headers.set(k, v);
-    }
-    return new Response(response.body, {
-      status:  response.status,
-      headers,
-    });
+    // ── Everything else — serve the static SPA ──────────────────────────────
+    return env.ASSETS.fetch(request);
   },
 };
+
+// ── API path guard ───────────────────────────────────────────────────────────
+
+function isApiPath(pathname: string): boolean {
+  return pathname === '/health'
+    || pathname === '/models'
+    || pathname.startsWith('/seeds')
+    || pathname.startsWith('/admin/')
+    || pathname.startsWith('/api/');
+}
 
 // ── Router ──────────────────────────────────────────────────────────────────
 

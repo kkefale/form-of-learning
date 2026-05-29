@@ -207,5 +207,6 @@ export interface Env {
   SESSION_DO:  DurableObjectNamespace;
   DB:          D1Database;
   AI:          Ai;
+  ASSETS:      Fetcher;
   CORS_ORIGIN: string;
 }
