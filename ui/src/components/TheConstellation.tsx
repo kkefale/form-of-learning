@@ -17,6 +17,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useSession } from '../lib/store';
+import { useShallow } from 'zustand/react/shallow';
 
 // ── State colour map ──────────────────────────────────────────────────────────
 
@@ -31,8 +32,12 @@ const STATE_COLORS: Record<string, { bg: string; border: string; text: string }>
 
 // ── Custom node component ────────────────────────────────────────────────────
 
-function ConceptNode({ data }: { data: { label: string; state: string; isZpd: boolean } }) {
-  const colors = STATE_COLORS[data.state] ?? STATE_COLORS.UNKNOWN;
+function ConceptNode({ data }: { data?: { label: string; state: string; isZpd: boolean } }) {
+  const state = data?.state ?? 'UNKNOWN';
+  const label = data?.label ?? '';
+  const isZpd = data?.isZpd ?? false;
+  const colors = STATE_COLORS[state] ?? STATE_COLORS.UNKNOWN;
+  
   return (
     <div style={{
       padding: '6px 12px',
@@ -40,17 +45,17 @@ function ConceptNode({ data }: { data: { label: string; state: string; isZpd: bo
       border:     `1px solid ${colors.border}`,
       borderRadius: 20,
       fontSize:   11,
-      fontWeight: data.state !== 'UNKNOWN' && data.state !== 'MASTER' ? 600 : 400,
+      fontWeight: state !== 'UNKNOWN' && state !== 'MASTER' ? 600 : 400,
       color:      colors.text,
       fontFamily: 'var(--font-mono)',
       whiteSpace: 'nowrap',
-      boxShadow:  data.isZpd ? `0 0 10px ${colors.border}40` : 'none',
+      boxShadow:  isZpd ? `0 0 10px ${colors.border}40` : 'none',
       transition: 'all 0.3s ease',
       cursor:     'default',
-      outline:    data.isZpd ? `2px solid ${colors.border}60` : 'none',
+      outline:    isZpd ? `2px solid ${colors.border}60` : 'none',
       outlineOffset: 2,
     }}>
-      {data.label}
+      {label}
     </div>
   );
 }
@@ -103,7 +108,7 @@ function buildEdges(
 // ── TheConstellation ──────────────────────────────────────────────────────────
 
 export default function TheConstellation() {
-  const { graph, zpd } = useSession(s => ({ graph: s.graph, zpd: s.zpd }));
+  const { graph, zpd } = useSession(useShallow(s => ({ graph: s.graph, zpd: s.zpd })));
 
   const initialNodes = useMemo(() => {
     if (!graph) return [];

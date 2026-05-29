@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSession } from '../lib/store';
+import { useShallow } from 'zustand/react/shallow';
 import { listModels, type LlmProvider, type ModelOption } from '../lib/api';
 
 interface Props {
@@ -11,12 +12,12 @@ interface Props {
 }
 
 export default function LlmPanel({ isOpen, onClose }: Props) {
-  const { llm, setLlm, complexityMode, setComplexity } = useSession(s => ({
+  const { llm, setLlm, complexityMode, setComplexity } = useSession(useShallow(s => ({
     llm:          s.llm,
     setLlm:       s.setLlm,
     complexityMode: s.complexityMode,
     setComplexity:  s.setComplexity,
-  }));
+  })));
 
   const [models, setModels]   = useState<ModelOption[]>([]);
   const [apiKey, setApiKey]   = useState(llm.apiKey);

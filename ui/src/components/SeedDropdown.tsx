@@ -3,14 +3,15 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useSession } from '../lib/store';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function SeedDropdown() {
-  const { seeds, activeSeed, loadSeeds, selectSeed } = useSession(s => ({
+  const { seeds, activeSeed, loadSeeds, selectSeed } = useSession(useShallow(s => ({
     seeds:      s.seeds,
     activeSeed: s.activeSeed,
     loadSeeds:  s.loadSeeds,
     selectSeed: s.selectSeed,
-  }));
+  })));
 
   const [open, setOpen]         = useState(false);
   const [loading, setLoading]   = useState(false);

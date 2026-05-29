@@ -4,6 +4,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useSession } from '../lib/store';
+import { useShallow } from 'zustand/react/shallow';
 
 // ── Metadata pill ─────────────────────────────────────────────────────────────
 
@@ -112,8 +113,8 @@ function MessageBubble({ role, content, isSingularity, isStreaming }: MessageBub
 function StatusBar() {
   const {
     level, operationType, agreementState, agreementScore,
-    learnerStrategy, teachbackMode, topicWindow, turnCount,
-  } = useSession(s => ({
+    learnerStrategy,    teachbackMode, topicWindow, turnCount,
+  } = useSession(useShallow(s => ({
     level:          s.level,
     operationType:  s.operationType,
     agreementState: s.agreementState,
@@ -122,7 +123,7 @@ function StatusBar() {
     teachbackMode:  s.teachbackMode,
     topicWindow:    s.topicWindow,
     turnCount:      s.turnCount,
-  }));
+  })));
 
   if (turnCount === 0) return null;
 
@@ -155,12 +156,12 @@ function StatusBar() {
 
 function InputArea() {
   const [text, setText] = useState('');
-  const { sendTurn, isSending, activeSeed, error } = useSession(s => ({
+  const { sendTurn, isSending, activeSeed, error } = useSession(useShallow(s => ({
     sendTurn:   s.sendTurn,
     isSending:  s.isSending,
     activeSeed: s.activeSeed,
     error:      s.error,
-  }));
+  })));
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const submit = useCallback(() => {
@@ -259,13 +260,13 @@ function InputArea() {
 // ── TheRiver ──────────────────────────────────────────────────────────────────
 
 export default function TheRiver() {
-  const { messages, streamingText, isSending, activeSeed, singularity } = useSession(s => ({
+  const { messages, streamingText, isSending, activeSeed, singularity } = useSession(useShallow(s => ({
     messages:      s.messages,
     streamingText: s.streamingText,
     isSending:     s.isSending,
     activeSeed:    s.activeSeed,
     singularity:   s.singularity,
-  }));
+  })));
 
   const bottomRef = useRef<HTMLDivElement>(null);
 

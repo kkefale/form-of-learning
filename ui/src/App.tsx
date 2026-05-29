@@ -8,6 +8,7 @@ import TheFog           from './components/TheFog';
 import LlmPanel         from './components/LlmPanel';
 import SeedDropdown     from './components/SeedDropdown';
 import { useSession }   from './lib/store';
+import { useShallow }   from 'zustand/react/shallow';
 
 // ── Top bar ───────────────────────────────────────────────────────────────────
 
@@ -18,12 +19,12 @@ interface TopBarProps {
 }
 
 function TopBar({ onFogOpen, onLlmOpen, onClear }: TopBarProps) {
-  const { llm, turnCount, userId, complexityMode } = useSession(s => ({
+  const { llm, turnCount, userId, complexityMode } = useSession(useShallow(s => ({
     llm:           s.llm,
     turnCount:     s.turnCount,
     userId:        s.userId,
     complexityMode:s.complexityMode,
-  }));
+  })));
 
   const shortId = userId.slice(0, 8);
 
@@ -130,10 +131,10 @@ function TopBar({ onFogOpen, onLlmOpen, onClear }: TopBarProps) {
 export default function App() {
   const [fogOpen, setFogOpen]   = useState(false);
   const [llmOpen, setLlmOpen]   = useState(false);
-  const { loadMessages, refreshGraph } = useSession(s => ({
+  const { loadMessages, refreshGraph } = useSession(useShallow(s => ({
     loadMessages:  s.loadMessages,
     refreshGraph:  s.refreshGraph,
-  }));
+  })));
   const clearSession = useSession(s => s.clearSession);
 
   // Restore session on mount
